@@ -1,0 +1,13 @@
+﻿<Window x:Class="RFIDwpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Lecteur RFID" Height="200" Width="400">
+    <StackPanel x:Name="myStackPanel" Margin="20">
+        <Label Content="Identifiant de la carte :" />
+        <TextBox Name="txtIdentifiant" IsReadOnly="True" Margin="0,5,0,10" />
+        <Label Content="Nom associé :" />
+        <TextBlock Name="txtNom" Margin="0,5,0,10" />
+        <!-- TextBlock pour afficher les messages d'erreur -->
+        <TextBlock Name="txtConnectionError" Foreground="Red" Margin="0,5,0,10" Visibility="Collapsed" />
+    </StackPanel>
+</Window>

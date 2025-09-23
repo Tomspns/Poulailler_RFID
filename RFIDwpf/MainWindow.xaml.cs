@@ -1,0 +1,141 @@
+﻿using RFIDwpf.RFID;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Timers;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+namespace RFIDwpf
+{
+    /// <summary>
+    /// Logique d'interaction pour MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        private LecteurRfid lecteur;
+        private Timer timer;
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            lecteur = new LecteurRfid();
+
+            // Essaie de se connecter au lecteur RFID
+            if (lecteur.connectionRs() == 0)
+            {
+                StartTimer();
+            }
+            else
+            {
+                ShowConnectionError();
+            }
+        }
+
+        private void ShowConnectionError()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                txtConnectionError.Text = "Lecteur débranché. Veuillez le rebrancher.";
+                txtConnectionError.Visibility = Visibility.Visible;
+            });
+        }
+
+        private void HideConnectionError()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                txtConnectionError.Visibility = Visibility.Collapsed;
+            });
+        }
+
+        private void StartTimer()
+        {
+            timer = new Timer(1000); // Vérifie toutes les secondes
+            timer.Elapsed += CheckCard;
+            timer.Start();
+        }
+
+        private void CheckCard(object sender, ElapsedEventArgs e)
+        {
+            // Vérifie la connexion
+            int status = lecteur.connectionRs();
+
+            // Gérer les différents statuts
+            string errorMessage = string.Empty;
+
+            if (status == 1)
+            {
+                errorMessage = "Erreur de communication avec le lecteur. Veuillez vérifier les connexions.";
+            }
+            else if (status == 2)
+            {
+                errorMessage = "Le lecteur RFID semble débranché. Veuillez vérifier la connexion et rebrancher l'appareil.";
+            }
+            else
+            {
+                errorMessage = "Statut de connexion inconnu. Veuillez vérifier le lecteur.";
+            }
+
+            if (status != 0)
+            {
+                // Affiche le message d'erreur dans un MessageBox
+                Dispatcher.Invoke(() =>
+                {
+                    MessageBox.Show(errorMessage, "Erreur de connexion", MessageBoxButton.OK, MessageBoxImage.Warning);
+                });
+
+                ShowConnectionError();
+                return; // Sortir si le lecteur n'est pas connecté
+            }
+            else
+            {
+                HideConnectionError();
+            }
+
+            string identifiant = lecteur.GetCardID(); // Lit l'identifiant de la carte
+            if (!string.IsNullOrEmpty(identifiant))
+            {
+                DisplayName(identifiant);
+            }
+        }
+
+        private void DisplayName(string identifiant)
+        {
+            string name;
+
+            if (identifiant == "043362D2FC1090")
+            {
+                name = "Poule 1";
+            }
+            else if (identifiant == "029EC135")
+            {
+                name = "Poule 2";
+            }
+            else if (identifiant == "620AC435")
+            {
+                name = "Poule 3";
+            }
+            else
+            {
+                name = "Inconnu";
+            }
+
+            // Met à jour l'interface utilisateur sur le thread principal
+            Dispatcher.Invoke(() =>
+            {
+                txtIdentifiant.Text = identifiant; // Affiche l'identifiant dans le TextBox
+                MessageBox.Show($"Identifiant: {identifiant}\nNom: {name}");  // Affiche le nom
+            });
+        }
+    }
+}
