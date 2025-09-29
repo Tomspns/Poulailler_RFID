@@ -14,6 +14,51 @@
         <SolidColorBrush x:Key="TextBrush" Color="#1F2937"/>
         <SolidColorBrush x:Key="MutedBrush" Color="#6B7280"/>
 
+        <Storyboard x:Key="FadeInAnimation">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" 
+                           From="0" To="1" Duration="0:0:0.6"
+                           AccelerationRatio="0.3" DecelerationRatio="0.3"/>
+            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.Y)" 
+                           From="20" To="0" Duration="0:0:0.6"
+                           AccelerationRatio="0.3" DecelerationRatio="0.3"/>
+        </Storyboard>
+
+        <Storyboard x:Key="CardHoverAnimation">
+            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)" 
+                           To="1.02" Duration="0:0:0.2"/>
+            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" 
+                           To="1.02" Duration="0:0:0.2"/>
+        </Storyboard>
+
+        <Storyboard x:Key="CardLeaveAnimation">
+            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)" 
+                           To="1" Duration="0:0:0.2"/>
+            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" 
+                           To="1" Duration="0:0:0.2"/>
+        </Storyboard>
+
+        <Storyboard x:Key="PulseAnimation" RepeatBehavior="Forever">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" 
+                           From="1" To="0.3" Duration="0:0:1"
+                           AutoReverse="True"/>
+        </Storyboard>
+
+        <Storyboard x:Key="SlideInFromLeft">
+            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" 
+                           From="-100" To="0" Duration="0:0:0.5"
+                           AccelerationRatio="0.2" DecelerationRatio="0.4"/>
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" 
+                           From="0" To="1" Duration="0:0:0.5"/>
+        </Storyboard>
+
+        <Storyboard x:Key="SlideInFromRight">
+            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" 
+                           From="100" To="0" Duration="0:0:0.5"
+                           AccelerationRatio="0.2" DecelerationRatio="0.4"/>
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" 
+                           From="0" To="1" Duration="0:0:0.5"/>
+        </Storyboard>
+
         <Style x:Key="ModernLabel" TargetType="Label">
             <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontSize" Value="15"/>
@@ -60,9 +105,44 @@
             <Setter Property="MinHeight" Value="40"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
+
+        <Style x:Key="AnimatedCard" TargetType="Border">
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <TransformGroup>
+                        <ScaleTransform/>
+                        <TranslateTransform/>
+                    </TransformGroup>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Style.Triggers>
+                <EventTrigger RoutedEvent="MouseEnter">
+                    <BeginStoryboard Storyboard="{StaticResource CardHoverAnimation}"/>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="MouseLeave">
+                    <BeginStoryboard Storyboard="{StaticResource CardLeaveAnimation}"/>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="Loaded">
+                    <BeginStoryboard Storyboard="{StaticResource FadeInAnimation}"/>
+                </EventTrigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
-    <Grid Background="{StaticResource BackgroundBrush}">
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetName="MainGrid" 
+                                   Storyboard.TargetProperty="Opacity" 
+                                   From="0" To="1" Duration="0:0:0.8"/>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </Window.Triggers>
+
+    <Grid x:Name="MainGrid" Background="{StaticResource BackgroundBrush}" Opacity="0">
         <Rectangle Height="80" VerticalAlignment="Top">
             <Rectangle.Fill>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -71,10 +151,38 @@
                     <GradientStop Color="#06B6D4" Offset="1"/>
                 </LinearGradientBrush>
             </Rectangle.Fill>
+            <Rectangle.RenderTransform>
+                <TranslateTransform/>
+            </Rectangle.RenderTransform>
+            <Rectangle.Triggers>
+                <EventTrigger RoutedEvent="Loaded">
+                    <BeginStoryboard>
+                        <Storyboard RepeatBehavior="Forever">
+                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" 
+                                           From="-20" To="20" Duration="0:0:4" AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Rectangle.Triggers>
         </Rectangle>
 
-        <!-- Removed LetterSpacing property and simplified title -->
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,20,0,0">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,20,0,0" Opacity="0">
+            <StackPanel.RenderTransform>
+                <TranslateTransform Y="-30"/>
+            </StackPanel.RenderTransform>
+            <StackPanel.Triggers>
+                <EventTrigger RoutedEvent="Loaded">
+                    <BeginStoryboard>
+                        <Storyboard BeginTime="0:0:0.2">
+                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" 
+                                           From="-30" To="0" Duration="0:0:0.6"/>
+                            <DoubleAnimation Storyboard.TargetProperty="Opacity" 
+                                           From="0" To="1" Duration="0:0:0.6"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </StackPanel.Triggers>
+
             <TextBlock Text="LECTEUR RFID" 
                        FontFamily="Segoe UI"
                        FontSize="24"
@@ -87,7 +195,9 @@
         <Border Background="{StaticResource CardBrush}"
                 CornerRadius="20"
                 Margin="30,100,30,30"
-                Padding="0">
+                Padding="0"
+                Style="{StaticResource AnimatedCard}"
+                Opacity="0">
             <Border.Effect>
                 <DropShadowEffect Color="#000000" 
                                 Direction="270" 
@@ -95,12 +205,28 @@
                                 BlurRadius="20" 
                                 Opacity="0.1"/>
             </Border.Effect>
+            <Border.Triggers>
+                <EventTrigger RoutedEvent="Loaded">
+                    <BeginStoryboard>
+                        <Storyboard BeginTime="0:0:0.4">
+                            <DoubleAnimation Storyboard.TargetProperty="Opacity" 
+                                           From="0" To="1" Duration="0:0:0.8"/>
+                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)" 
+                                           From="50" To="0" Duration="0:0:0.8"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Border.Triggers>
 
             <StackPanel x:Name="myStackPanel" Margin="40,30">
                 <Border Background="#F0F4FF" 
                         CornerRadius="16" 
                         Padding="24,20" 
-                        Margin="0,0,0,20">
+                        Margin="0,0,0,20"
+                        Opacity="0">
+                    <Border.RenderTransform>
+                        <TranslateTransform X="-100"/>
+                    </Border.RenderTransform>
                     <Border.Effect>
                         <DropShadowEffect Color="#6366F1" 
                                         Direction="270" 
@@ -108,6 +234,19 @@
                                         BlurRadius="20" 
                                         Opacity="0.1"/>
                     </Border.Effect>
+                    <Border.Triggers>
+                        <EventTrigger RoutedEvent="Loaded">
+                            <BeginStoryboard>
+                                <Storyboard BeginTime="0:0:0.6">
+                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" 
+                                                   From="-100" To="0" Duration="0:0:0.5"/>
+                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" 
+                                                   From="0" To="1" Duration="0:0:0.5"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </Border.Triggers>
+
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                             <Ellipse Width="8" Height="8" Fill="{StaticResource PrimaryBrush}" 
@@ -125,7 +264,11 @@
                 <Border Background="#FFFBF0" 
                         CornerRadius="16" 
                         Padding="24,20" 
-                        Margin="0,0,0,20">
+                        Margin="0,0,0,20"
+                        Opacity="0">
+                    <Border.RenderTransform>
+                        <TranslateTransform X="100"/>
+                    </Border.RenderTransform>
                     <Border.Effect>
                         <DropShadowEffect Color="#F59E0B" 
                                         Direction="270" 
@@ -133,6 +276,19 @@
                                         BlurRadius="20" 
                                         Opacity="0.1"/>
                     </Border.Effect>
+                    <Border.Triggers>
+                        <EventTrigger RoutedEvent="Loaded">
+                            <BeginStoryboard>
+                                <Storyboard BeginTime="0:0:0.8">
+                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" 
+                                                   From="100" To="0" Duration="0:0:0.5"/>
+                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" 
+                                                   From="0" To="1" Duration="0:0:0.5"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </Border.Triggers>
+
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                             <Ellipse Width="8" Height="8" Fill="{StaticResource SecondaryBrush}" 
@@ -196,6 +352,11 @@
                                 ShadowDepth="0" 
                                 Opacity="0.8"/>
             </Border.Effect>
+            <Border.Triggers>
+                <EventTrigger RoutedEvent="Loaded">
+                    <BeginStoryboard Storyboard="{StaticResource PulseAnimation}"/>
+                </EventTrigger>
+            </Border.Triggers>
         </Border>
     </Grid>
 </Window>

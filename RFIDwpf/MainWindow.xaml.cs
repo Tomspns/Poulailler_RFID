@@ -88,13 +88,12 @@ namespace RFIDwpf
 
             if (status != 0)
             {
-                // Affiche le message d'erreur dans un MessageBox
                 Dispatcher.Invoke(() =>
                 {
-                    MessageBox.Show(errorMessage, "Erreur de connexion", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    txtConnectionError.Text = errorMessage;
+                    txtConnectionError.Visibility = Visibility.Visible;
                 });
 
-                ShowConnectionError();
                 return; // Sortir si le lecteur n'est pas connecté
             }
             else
@@ -130,11 +129,10 @@ namespace RFIDwpf
                 name = "Inconnu";
             }
 
-            // Met à jour l'interface utilisateur sur le thread principal
             Dispatcher.Invoke(() =>
             {
                 txtIdentifiant.Text = identifiant; // Affiche l'identifiant dans le TextBox
-                MessageBox.Show($"Identifiant: {identifiant}\nNom: {name}");  // Affiche le nom
+                txtNom.Text = name; // Affiche le nom dans le TextBlock dédié
             });
         }
     }
