@@ -108,6 +108,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="RFID\Carte.cs" />
+    <Compile Include="RFID\DatabaseHelper.cs" />
     <Compile Include="RFID\LecteurRfid.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

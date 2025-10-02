@@ -131,9 +131,19 @@ namespace RFIDwpf
 
             Dispatcher.Invoke(() =>
             {
-                txtIdentifiant.Text = identifiant; // Affiche l'identifiant dans le TextBox
-                txtNom.Text = name; // Affiche le nom dans le TextBlock dédié
+                txtIdentifiant.Text = identifiant;
+                txtNom.Text = name;
             });
+
+            // ➡ Enregistrement en base MySQL
+            try
+            {
+                DatabaseHelper.InsertPoule(identifiant, name);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erreur enregistrement BDD : " + ex.Message);
+            }
         }
     }
 }
