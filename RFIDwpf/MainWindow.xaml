@@ -224,6 +224,7 @@
                         Padding="24,20" 
                         Margin="0,0,0,20"
                         Opacity="0">
+        
                     <Border.RenderTransform>
                         <TranslateTransform X="-100"/>
                     </Border.RenderTransform>
@@ -337,6 +338,18 @@
                                  Visibility="Collapsed"/>
                     </StackPanel>
                 </Border>
+                <Button Content="Supprimer le dernier enregistrement"
+                    Width="280"
+                    Height="45"
+                    Margin="0,20,0,0"
+                    Background="#EF4444"
+                    Foreground="White"
+                    FontSize="15"
+                    FontWeight="Bold"
+                    BorderThickness="0"
+                    Padding="10"
+                    HorizontalAlignment="Center"
+                    Click="BtnDeleteLast_Click"/>               
             </StackPanel>
         </Border>
 

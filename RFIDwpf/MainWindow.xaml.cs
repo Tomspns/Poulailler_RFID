@@ -145,5 +145,25 @@ namespace RFIDwpf
                 MessageBox.Show("Erreur enregistrement BDD : " + ex.Message);
             }
         }
+        private void BtnDeleteLast_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                DatabaseHelper.DeleteLastPoule();
+                txtIdentifiant.Text = "";
+                txtNom.Text = "";
+                MessageBox.Show("Dernier enregistrement supprimé avec succès ✅",
+                                "Suppression",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erreur lors de la suppression : " + ex.Message,
+                                "Erreur",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+            }
+        }
     }
 }

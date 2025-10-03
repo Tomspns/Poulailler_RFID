@@ -31,5 +31,24 @@ namespace RFIDwpf.RFID
                 }
             }
         }
+
+        public static void DeleteLastPoule()
+        {
+            using (var conn = new MySqlConnection(connectionString))
+            {
+                conn.Open();
+
+                // ⚡ On supprime l’enregistrement avec l’ID le plus récent
+                string query = @"
+            DELETE FROM poule 
+            ORDER BY date_d_enregistrement DESC 
+            LIMIT 1;";
+
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
     }
 }
