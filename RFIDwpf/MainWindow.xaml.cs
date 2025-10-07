@@ -14,6 +14,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Collections.Concurrent;
+
 
 namespace RFIDwpf
 {
@@ -24,6 +26,7 @@ namespace RFIDwpf
     {
         private LecteurRfid lecteur;
         private Timer timer;
+        private static ConcurrentDictionary<string, string> etatsPoules = new ConcurrentDictionary<string, string>();
 
         public MainWindow()
         {
@@ -110,32 +113,32 @@ namespace RFIDwpf
 
         private void DisplayName(string identifiant)
         {
+            // Déterminer le nom associé à l'ID
             string name;
-
             if (identifiant == "043362D2FC1090")
-            {
                 name = "Poule 1";
-            }
             else if (identifiant == "029EC135")
-            {
                 name = "Poule 2";
-            }
             else if (identifiant == "620AC435")
-            {
                 name = "Poule 3";
-            }
             else
-            {
                 name = "Inconnu";
-            }
 
+            // Alterner l’état
+            string nouvelEtat = "dedans";
+            if (etatsPoules.ContainsKey(identifiant) && etatsPoules[identifiant] == "dedans")
+                nouvelEtat = "dehors";
+
+            etatsPoules[identifiant] = nouvelEtat;
+
+            // Mise à jour UI
             Dispatcher.Invoke(() =>
             {
                 txtIdentifiant.Text = identifiant;
-                txtNom.Text = name;
+                txtNom.Text = $"{name} ({nouvelEtat.ToUpper()})";
             });
 
-            // ➡ Enregistrement en base MySQL
+            // Enregistrement en BDD
             try
             {
                 DatabaseHelper.InsertPoule(identifiant, name);
@@ -144,6 +147,9 @@ namespace RFIDwpf
             {
                 MessageBox.Show("Erreur enregistrement BDD : " + ex.Message);
             }
+
+            // Envoi MQTT
+            _ = MqttClientService.PublishEtatPouleAsync(identifiant, name, nouvelEtat);
         }
         private void BtnDeleteLast_Click(object sender, RoutedEventArgs e)
         {
