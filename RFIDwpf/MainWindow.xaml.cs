@@ -171,5 +171,55 @@ namespace RFIDwpf
                                 MessageBoxImage.Error);
             }
         }
+
+        private void BtnAdd_Click(object sender, RoutedEventArgs e)
+        {
+            string idPoule = txtIdentifiant.Text; // Récupérer l'identifiant de la carte
+            string nom = txtNom.Text; // Récupérer le nom
+
+            try
+            {
+                DatabaseHelper.AddPoule(idPoule, nom);
+                MessageBox.Show("Poule ajoutée avec succès ✅",
+                                "Ajout",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erreur lors de l'ajout : " + ex.Message,
+                                "Erreur",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            string idPoule = txtIdentifiant.Text; // Récupérer l'identifiant de la carte
+            string nouveauNom = txtNom.Text; // Récupérer le nouveau nom
+
+            try
+            {
+                DatabaseHelper.UpdatePoule(idPoule, nouveauNom);
+                MessageBox.Show("Poule modifiée avec succès ✅",
+                                "Modification",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erreur lors de la modification : " + ex.Message,
+                                "Erreur",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+            }
+        }
+
+        private void BtnAjouter_Click(object sender, RoutedEventArgs e)
+        {
+            AddEditPouleWindow addEditPouleWindow = new AddEditPouleWindow();
+            addEditPouleWindow.ShowDialog(); // Ouvre la fenêtre en mode dialogue
+        }
     }
 }

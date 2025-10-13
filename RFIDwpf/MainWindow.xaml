@@ -224,7 +224,7 @@
                         Padding="24,20" 
                         Margin="0,0,0,20"
                         Opacity="0">
-        
+
                     <Border.RenderTransform>
                         <TranslateTransform X="-100"/>
                     </Border.RenderTransform>
@@ -314,6 +314,36 @@
                     </StackPanel>
                 </Border>
 
+                <StackPanel Orientation="Vertical" Margin="0,20,0,0">
+                    <!-- Autres éléments -->
+
+                    <Button Content="Ajouter une Poule"
+            Width="280"
+            Height="45"
+            Margin="0,10,0,0"
+            Background="#5CB85C"
+            Foreground="White"
+            FontSize="15"
+            FontWeight="Bold"
+            BorderThickness="0"
+            Padding="10"
+            HorizontalAlignment="Center"
+            Click="BtnAjouter_Click"/>
+
+                    <Button Content="Modifier une Poule"
+            Width="280"
+            Height="45"
+            Margin="0,10,0,0"
+            Background="#F0AD4E"
+            Foreground="White"
+            FontSize="15"
+            FontWeight="Bold"
+            BorderThickness="0"
+            Padding="10"
+            HorizontalAlignment="Center"
+            Click="BtnAjouter_Click"/>
+                </StackPanel>
+
                 <Border Background="#FEF2F2" 
                         CornerRadius="16" 
                         Padding="24,20"
@@ -349,7 +379,7 @@
                     BorderThickness="0"
                     Padding="10"
                     HorizontalAlignment="Center"
-                    Click="BtnDeleteLast_Click"/>               
+                    Click="BtnDeleteLast_Click"/>
             </StackPanel>
         </Border>
 

@@ -20,7 +20,7 @@ namespace RFIDwpf.RFID
 
             _options = new MqttClientOptionsBuilder()
                 .WithClientId("poulailler_local_client")
-                .WithTcpServer("172.31.254.129", 1883)
+                .WithTcpServer("172.31.254.159", 1883)
                 .Build();
 
             _client.UseDisconnectedHandler(async e =>

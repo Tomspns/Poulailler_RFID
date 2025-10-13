@@ -113,10 +113,21 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AddEditPouleWindow.xaml.cs">
+      <DependentUpon>AddEditPouleWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DAO\AddPouleDAO.cs" />
+    <Compile Include="DAO\DatabaseConnection.cs" />
+    <Compile Include="DAO\DeletePouleDAO.cs" />
+    <Compile Include="DAO\UpdatePouleDAO.cs" />
     <Compile Include="RFID\Carte.cs" />
     <Compile Include="RFID\DatabaseHelper.cs" />
     <Compile Include="RFID\LecteurRfid.cs" />
     <Compile Include="RFID\MqttClientService.cs" />
+    <Page Include="AddEditPouleWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
