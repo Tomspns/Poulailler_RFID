@@ -176,10 +176,11 @@ namespace RFIDwpf
         {
             string idPoule = txtIdentifiant.Text; // Récupérer l'identifiant de la carte
             string nom = txtNom.Text; // Récupérer le nom
+            string race = "Inconnue"; // Valeur par défaut ou à récupérer depuis l'UI
 
             try
             {
-                DatabaseHelper.AddPoule(idPoule, nom);
+                DatabaseHelper.AddPoule(idPoule, nom, race);
                 MessageBox.Show("Poule ajoutée avec succès ✅",
                                 "Ajout",
                                 MessageBoxButton.OK,
@@ -198,10 +199,11 @@ namespace RFIDwpf
         {
             string idPoule = txtIdentifiant.Text; // Récupérer l'identifiant de la carte
             string nouveauNom = txtNom.Text; // Récupérer le nouveau nom
+            string nouvelleRace = "Inconnue"; // Valeur par défaut ou à récupérer depuis l'UI
 
             try
             {
-                DatabaseHelper.UpdatePoule(idPoule, nouveauNom);
+                DatabaseHelper.UpdatePoule(idPoule, nouveauNom, nouvelleRace);
                 MessageBox.Show("Poule modifiée avec succès ✅",
                                 "Modification",
                                 MessageBoxButton.OK,
@@ -218,7 +220,10 @@ namespace RFIDwpf
 
         private void BtnAjouter_Click(object sender, RoutedEventArgs e)
         {
-            AddEditPouleWindow addEditPouleWindow = new AddEditPouleWindow();
+            AddEditPouleWindow addEditPouleWindow = new AddEditPouleWindow
+            {
+                Owner = this // Définit la fenêtre principale comme propriétaire
+            };
             addEditPouleWindow.ShowDialog(); // Ouvre la fenêtre en mode dialogue
         }
     }

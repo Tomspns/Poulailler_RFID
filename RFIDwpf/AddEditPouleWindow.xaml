@@ -4,9 +4,11 @@
         Title="Gestion des Poules" Height="450" Width="550"
         WindowStartupLocation="CenterScreen"
         MinHeight="450" MinWidth="550"
-        Background="#F8F9FA">
+        Background="#F8F9FA"
+        Loaded="Window_Loaded">
 
     <Window.Resources>
+        <!-- Animation d'ouverture -->
         <Storyboard x:Key="WindowLoadAnimation">
             <DoubleAnimation Storyboard.TargetName="MainCard"
                              Storyboard.TargetProperty="Opacity"
@@ -26,6 +28,7 @@
             </DoubleAnimation>
         </Storyboard>
 
+        <!-- Styles TextBox -->
         <Style x:Key="ModernTextBox" TargetType="TextBox">
             <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontSize" Value="14"/>
@@ -34,16 +37,19 @@
             <Setter Property="BorderBrush" Value="#E0E0E0"/>
             <Setter Property="Background" Value="White"/>
             <Setter Property="Foreground" Value="#333333"/>
+            <!-- Assure la visibilité du texte -->
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
                         <Border x:Name="border"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="10">
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="10">
                             <ScrollViewer x:Name="PART_ContentHost"
-                                           Margin="{TemplateBinding Padding}"/>
+                                  Margin="{TemplateBinding Padding}"
+                                  Foreground="{TemplateBinding Foreground}"/>
+                            <!-- IMPORTANT -->
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -51,8 +57,8 @@
                                     <BeginStoryboard>
                                         <Storyboard>
                                             <ColorAnimation Storyboard.TargetName="border"
-                                                            Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
-                                                            To="#FF6B35" Duration="0:0:0.2"/>
+                                                    Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
+                                                    To="#FF6B35" Duration="0:0:0.2"/>
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.EnterActions>
@@ -60,8 +66,8 @@
                                     <BeginStoryboard>
                                         <Storyboard>
                                             <ColorAnimation Storyboard.TargetName="border"
-                                                            Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
-                                                            To="#E0E0E0" Duration="0:0:0.2"/>
+                                                    Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
+                                                    To="#E0E0E0" Duration="0:0:0.2"/>
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.ExitActions>
@@ -75,6 +81,7 @@
             </Setter>
         </Style>
 
+        <!-- Styles Button -->
         <Style x:Key="ModernButton" TargetType="Button">
             <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontSize" Value="14"/>
@@ -87,36 +94,20 @@
                         <Border x:Name="border"
                                 Background="{TemplateBinding Background}"
                                 CornerRadius="10"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" 
-                                              VerticalAlignment="Center"/>
+                                Padding="{TemplateBinding Padding}"
+                                RenderTransformOrigin="0.5,0.5">
+                            <Border.RenderTransform>
+                                <ScaleTransform ScaleX="1" ScaleY="1"/>
+                            </Border.RenderTransform>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Trigger.EnterActions>
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="border"
-                                                             Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                                                             To="1.05" Duration="0:0:0.2"/>
-                                            <DoubleAnimation Storyboard.TargetName="border"
-                                                             Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
-                                                             To="1.05" Duration="0:0:0.2"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </Trigger.EnterActions>
-                                <Trigger.ExitActions>
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="border"
-                                                             Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                                                             To="1" Duration="0:0:0.2"/>
-                                            <DoubleAnimation Storyboard.TargetName="border"
-                                                             Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
-                                                             To="1" Duration="0:0:0.2"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </Trigger.ExitActions>
+                                <Setter TargetName="border" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="1.05" ScaleY="1.05"/>
+                                    </Setter.Value>
+                                </Setter>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -132,6 +123,7 @@
     </Window.Triggers>
 
     <Grid>
+        <!-- En-tête -->
         <Rectangle Height="120" VerticalAlignment="Top">
             <Rectangle.Fill>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -143,72 +135,46 @@
         </Rectangle>
 
         <StackPanel VerticalAlignment="Top" Margin="0,25,0,0">
-            <TextBlock Text="🐔" 
-                       FontSize="36"
-                       HorizontalAlignment="Center"
-                       Margin="0,0,0,5"/>
-            <TextBlock Text="Gestion des Poules" 
-                       HorizontalAlignment="Center"
-                       FontFamily="Segoe UI"
-                       FontSize="24"
-                       FontWeight="Bold"
-                       Foreground="White"/>
+            <TextBlock Text="🐔" FontSize="36" HorizontalAlignment="Center" Margin="0,0,0,5"/>
+            <TextBlock Text="Gestion des Poules" FontFamily="Segoe UI" FontSize="24" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
         </StackPanel>
 
-        <Border x:Name="MainCard"
-                Background="White"
-                CornerRadius="20"
-                Margin="30,140,30,30"
-                Padding="35"
-                Opacity="0">
+        <!-- Card principale -->
+        <Border x:Name="MainCard" Background="White" CornerRadius="20" Margin="30,140,30,30" Padding="35" Opacity="0">
             <Border.RenderTransform>
                 <TranslateTransform Y="30"/>
             </Border.RenderTransform>
             <Border.Effect>
-                <DropShadowEffect Color="#CCCCCC" 
-                                  Direction="270" 
-                                  ShadowDepth="5" 
-                                  BlurRadius="20" 
-                                  Opacity="0.3"/>
+                <DropShadowEffect Color="#CCCCCC" Direction="270" ShadowDepth="5" BlurRadius="20" Opacity="0.3"/>
             </Border.Effect>
 
             <StackPanel>
-                <Border Background="#FFF3E0" 
-                        CornerRadius="12" 
-                        Padding="20,15" 
-                        Margin="0,0,0,20">
+                <!-- ID Poule -->
+                <Border Background="#FFF3E0" CornerRadius="12" Padding="20,15" Margin="0,0,0,20">
                     <StackPanel>
-                        <Label Content="🆔 ID Poule" 
-                               FontFamily="Segoe UI"
-                               FontSize="13"
-                               FontWeight="SemiBold"
-                               Foreground="#FF6B35"
-                               Padding="0"
-                               Margin="0,0,0,8"/>
-                        <TextBox x:Name="IdPouleTextBox" 
-                                 Style="{StaticResource ModernTextBox}"
-                                 Height="45"/>
+                        <Label Content="🆔 ID Poule" FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Foreground="#FF6B35" Padding="0" Margin="0,0,0,8"/>
+                        <TextBox x:Name="IdPouleTextBox" Background="White" Foreground="Black" Height="45"/>
                     </StackPanel>
                 </Border>
 
-                <Border Background="#E8F5E9" 
-                        CornerRadius="12" 
-                        Padding="20,15" 
-                        Margin="0,0,0,25">
+                <!-- Nom Poule -->
+                <Border Background="#E8F5E9" CornerRadius="12" Padding="20,15" Margin="0,0,0,25">
                     <StackPanel>
-                        <Label Content="📝 Nom de la Poule" 
-                               FontFamily="Segoe UI"
-                               FontSize="13"
-                               FontWeight="SemiBold"
-                               Foreground="#4CAF50"
-                               Padding="0"
-                               Margin="0,0,0,8"/>
-                        <TextBox x:Name="NomTextBox" 
-                                 Style="{StaticResource ModernTextBox}"
-                                 Height="45"/>
+                        <Label Content="📝 Nom de la Poule" FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Foreground="#4CAF50" Padding="0" Margin="0,0,0,8"/>
+                        <TextBox x:Name="NomTextBox"  Background="White" Foreground="Black" Height="45"/>
                     </StackPanel>
                 </Border>
 
+                <!-- Race Poule -->
+                <Border Background="#FFFDE7" CornerRadius="12" Padding="20,15" Margin="0,0,0,25">
+                    <StackPanel>
+                        <Label Content="🐓 Race de la Poule" FontFamily="Segoe UI" FontSize="13" FontWeight="SemiBold" Foreground="#FFC107" Padding="0" Margin="0,0,0,8"/>
+                        <TextBox x:Name="RaceTextBox" Background="White" Foreground="Black" Height="45"/>
+                    </StackPanel>
+                </Border>
+
+
+                <!-- Boutons -->
                 <Grid Margin="0,10,0,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -216,21 +182,8 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Button Grid.Column="0"
-                            Content="➕ Ajouter" 
-                            Style="{StaticResource ModernButton}"
-                            Background="#4CAF50"
-                            Foreground="White"
-                            Height="50"
-                            Click="Ajouter_Click"/>
-
-                    <Button Grid.Column="2"
-                            Content="✏️ Modifier" 
-                            Style="{StaticResource ModernButton}"
-                            Background="#2196F3"
-                            Foreground="White"
-                            Height="50"
-                            Click="Modifier_Click"/>
+                    <Button Grid.Column="0" Content="➕ Ajouter" Style="{StaticResource ModernButton}" Background="#4CAF50" Foreground="White" Height="50" Click="Ajouter_Click"/>
+                    <Button Grid.Column="2" Content="✏️ Modifier" Style="{StaticResource ModernButton}" Background="#2196F3" Foreground="White" Height="50" Click="Modifier_Click"/>
                 </Grid>
             </StackPanel>
         </Border>

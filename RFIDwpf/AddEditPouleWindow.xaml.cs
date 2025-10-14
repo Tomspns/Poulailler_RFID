@@ -1,16 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using RFIDwpf.DAO;
 
 namespace RFIDwpf
@@ -22,19 +11,22 @@ namespace RFIDwpf
             InitializeComponent();
         }
 
+        // Méthode appelée au chargement de la fenêtre
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            IdPouleTextBox.Focus(); // Met le focus sur le champ ID Poule
+            IdPouleTextBox.Focus();
         }
 
+        // Ajouter une poule
         private void Ajouter_Click(object sender, RoutedEventArgs e)
         {
             string idPoule = IdPouleTextBox.Text.Trim();
             string nom = NomTextBox.Text.Trim();
+            string race = RaceTextBox.Text.Trim();  // <-- nouveau champ
 
             try
             {
-                AddPouleDAO.AddPoule(idPoule, nom);
+                AddPouleDAO.AddPoule(idPoule, nom, race);  // <-- mettre à jour la DAO
                 MessageBox.Show("Poule ajoutée avec succès !");
                 this.Close();
             }
@@ -44,14 +36,16 @@ namespace RFIDwpf
             }
         }
 
+        // Modifier une poule
         private void Modifier_Click(object sender, RoutedEventArgs e)
         {
             string idPoule = IdPouleTextBox.Text.Trim();
             string nouveauNom = NomTextBox.Text.Trim();
+            string nouvelleRace = RaceTextBox.Text.Trim();  // <-- nouveau champ
 
             try
             {
-                UpdatePouleDAO.UpdatePoule(idPoule, nouveauNom);
+                UpdatePouleDAO.UpdatePoule(idPoule, nouveauNom, nouvelleRace);  // <-- mettre à jour la DAO
                 MessageBox.Show("Poule modifiée avec succès !");
                 this.Close();
             }

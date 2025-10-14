@@ -48,9 +48,9 @@ namespace RFIDwpf.RFID
             }
         }
 
-        public static void AddPoule(string idPoule, string nom)
+        public static void AddPoule(string idPoule, string nom, string race)
         {
-            AddPouleDAO.AddPoule(idPoule, nom); // Appelle la méthode correcte
+            AddPouleDAO.AddPoule(idPoule, nom, race); // Appelle la méthode correcte
         }
 
         public static void DeletePoule(string idPoule)
@@ -58,9 +58,9 @@ namespace RFIDwpf.RFID
             DeletePouleDAO.DeletePoule(idPoule); // Appelle la méthode correcte
         }
 
-        public static void UpdatePoule(string idPoule, string nouveauNom)
+        public static void UpdatePoule(string idPoule, string nouveauNom, string nouvelleRace)
         {
-            UpdatePouleDAO.UpdatePoule(idPoule, nouveauNom); // Appelle la méthode correcte
+            UpdatePouleDAO.UpdatePoule(idPoule, nouveauNom, nouvelleRace); // Appelle la méthode correcte
         }
     }
 }
