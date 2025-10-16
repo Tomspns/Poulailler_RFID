@@ -1,32 +1,30 @@
 ﻿using MySql.Data.MySqlClient;
 using RFIDwpf.DAO;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RFIDwpf.RFID
 {
     public static class DatabaseHelper
     {
-        private static string connectionString = "Server=localhost;Database=poulaillier;Uid=root;Pwd=;";
+        // ⚙️ Chaîne de connexion AlwaysData
+        // Remplace les valeurs ci-dessous par celles de ton collègue
+        private static string connectionString = "Server=mysql-poulailler.alwaysdata.net;Database=poulailler_bdd_poulailler;Uid=433737;Pwd=poulaillersaintmichel;SslMode=Required;";
 
-        public static void InsertPoule(string idPoule, string nom)
+        public static void InsertPoule(string idPOULE, string nom)
         {
             using (var conn = new MySqlConnection(connectionString))
             {
                 conn.Open();
                 string query = @"
-                    INSERT INTO poule (idPoule, nom, date_d_enregistrement, rfid)
-                    VALUES (@idPoule, @nom, @date, @rfid)";
+                    INSERT INTO poule (idPOULE, nom, date_d_enregistrement, rfid)
+                    VALUES (@idPOULE, @nom, @date, @rfid)";
 
                 using (var cmd = new MySqlCommand(query, conn))
                 {
-                    cmd.Parameters.AddWithValue("@idPoule", idPoule);
+                    cmd.Parameters.AddWithValue("@idPOULE", idPOULE);
                     cmd.Parameters.AddWithValue("@nom", nom);
                     cmd.Parameters.AddWithValue("@date", DateTime.Now);
-                    cmd.Parameters.AddWithValue("@rfid", idPoule);
+                    cmd.Parameters.AddWithValue("@rfid", idPOULE);
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -50,17 +48,17 @@ namespace RFIDwpf.RFID
 
         public static void AddPoule(string idPoule, string nom, string race)
         {
-            AddPouleDAO.AddPoule(idPoule, nom, race); // Appelle la méthode correcte
+            AddPouleDAO.AddPoule(idPoule, nom, race);
         }
 
         public static void DeletePoule(string idPoule)
         {
-            DeletePouleDAO.DeletePoule(idPoule); // Appelle la méthode correcte
+            DeletePouleDAO.DeletePoule(idPoule);
         }
 
         public static void UpdatePoule(string idPoule, string nouveauNom, string nouvelleRace)
         {
-            UpdatePouleDAO.UpdatePoule(idPoule, nouveauNom, nouvelleRace); // Appelle la méthode correcte
+            UpdatePouleDAO.UpdatePoule(idPoule, nouveauNom, nouvelleRace);
         }
     }
 }
