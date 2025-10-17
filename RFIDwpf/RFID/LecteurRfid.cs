@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -10,7 +11,7 @@ namespace RFIDwpf.RFID
 {
     public class LecteurRfid
     {
-
+        // === DLLs du lecteur ===
         [DllImport("kernel32.dll")]
         static extern void Sleep(int dwMilliseconds);
 
@@ -34,197 +35,167 @@ namespace RFIDwpf.RFID
 
         [DllImport("MasterRD.dll")]
         static extern int rf_select(short icdev, IntPtr pSnr, byte srcLen, ref sbyte Size);
-     
-        #region byteHEX
-        /// <summary>
-        /// Transforme un octet en chaine contenant le caractère ASCII
-        /// </summary>
-        /// <param name="ib">valeur de l'octet</param>
-        /// <returns>Chaine caractère</returns>
-        ///
 
-        public static String byteHEX(Byte ib)
-        {
-            String _str = String.Empty;
-            try
-            {
-                char[] Digit = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A',
-                'B', 'C', 'D', 'E', 'F' };
-                char[] ob = new char[2];
-                ob[0] = Digit[(ib >> 4) & 0X0F];
-                ob[1] = Digit[ib & 0X0F];
-                _str = new String(ob);
-            }
-            catch (Exception)
-            {
-                new Exception("对不起有错。");
-            }
-            return _str;
+        // === Événement déclenché quand une carte est scannée ===
+        public event EventHandler<string> CardScanned;
 
-        }
-        #endregion
-        public bool bConnectedDevice;                      // permet de savoir si un lecteur est connecté
+        // === Variables internes ===
+        public bool bConnectedDevice;
         protected int port;
-        public int Port                                    // numéro du port série du lecteur
-        {
-            get { return port; }
-            set { if (value > 0) port = value; }
-        }
-
         protected int baud;
-        public int Baud                                    // vitesse liaison série
-        {
-            get { return baud; }
-            set { if (value > 0) baud = value; }
-        }
+        protected string identifiant;
+        private bool lectureEnCours = false;
+        private CancellationTokenSource cts;
 
-        protected String identifiant;
         public string Identifiant
         {
             get { return identifiant; }
             set { identifiant = value; }
         }
 
+        public int Port
+        {
+            get { return port; }
+            set { if (value > 0) port = value; }
+        }
+
+        public int Baud
+        {
+            get { return baud; }
+            set { if (value > 0) baud = value; }
+        }
+
         public LecteurRfid()
         {
-       
             bConnectedDevice = false;
             baud = 19200;
-            this.port = Int32.Parse("5"); // port RFID connection 
-            /*this.port = 9;
-            baud = 19200;
-            this.carteLu = carteLu;*/
+            port = 5; // ✅ Port série du lecteur
         }
 
-        /* protected Carte carteLu;
-         public Carte CarteLu                            // carte en liaison avec le lecteur
-         {
-             get { return carteLu; }
-             set { carteLu = value; }
-         }
-
-         public LecteurRfid(Carte carteLu)
-         {
-             bConnectedDevice = false;
-             this.port = 9;
-             baud = 19200;
-             this.carteLu = carteLu;
-         }*/
-        /*  public LecteurRfid(int port, int baud, Carte carteLu)
-          {
-              this.port = port;
-              this.baud = baud;
-              this.carteLu = carteLu;
-              // connectionRs();
-          }*/
+        // === Connexion au port série ===
         public int connectionRs()
         {
-            int status;
-            status = rf_init_com(port, baud);
-            if (status == 0) bConnectedDevice = true;
-            else bConnectedDevice = false;
+            int status = rf_init_com(port, baud);
+            bConnectedDevice = (status == 0);
+
+            if (bConnectedDevice)
+                StartAutoRead(); // ✅ Démarre la lecture automatique
+
             return status;
         }
+
         public int fermetureRs()
         {
-            int status = -1; ;
             if (bConnectedDevice)
             {
-                status = rf_ClosePort();
-                if (status == 0) bConnectedDevice = false;
+                bConnectedDevice = false;
+                cts?.Cancel(); // Arrête la boucle de lecture
+                return rf_ClosePort();
             }
-            return status;
+            return -1;
         }
-        public int lireIdentifiantCarte()
+
+        // === Lecture RFID "low level" ===
+        private int lireIdentifiantCarte()
         {
-            int testlecture = 0;          // on essaye deux fois en cas de problème
-            short icdev = 0x0000;       // Descripteur du lecteur
+            short icdev = 0x0000;
             int status = -1;
-            byte type = (byte)'A';      //type mifare
+            byte type = (byte)'A';
             byte mode = 0x52;
             ushort TagType = 0;
-            byte bcnt = 0x04;           //mifare 卡都用4
+            byte bcnt = 0x04;
             IntPtr pSnr;
             byte len = 255;
 
-
             if (!bConnectedDevice)
-            {
-                status = connectionRs();                 // on essaye au cas où on est passé par le constructeur par défaut
-            }
+                status = connectionRs();
 
-            if (bConnectedDevice)               // Là forcément la liaison série ne fonctionne pas
+            if (bConnectedDevice)
             {
                 pSnr = Marshal.AllocHGlobal(1024);
 
-                do
+                // 🔹 Éteint puis rallume l'antenne pour forcer nouvelle détection
+                rf_antenna_sta(icdev, 0);
+                Sleep(20);
+                rf_init_type(icdev, type);
+                Sleep(20);
+                rf_antenna_sta(icdev, 1);
+                Sleep(50);
+
+                status = rf_request(icdev, mode, ref TagType);
+                if (status == 0)
                 {
-                    status = rf_antenna_sta(icdev, 0);//on coupe l'antenne
+                    status = rf_anticoll(icdev, bcnt, pSnr, ref len);
                     if (status == 0)
                     {
-                        Sleep(20);
-                        status = rf_init_type(icdev, type);// on sélectionne le type de carte Mifare1k
-                        if (status == 0)
-                        {
-                            Sleep(20);
-                            status = rf_antenna_sta(icdev, 1);//On remet l'antenne
-                            if (status == 0)
-                            {
-                                Sleep(50);
-                                status = rf_request(icdev, mode, ref TagType);//On interroge pour voir s'il y a une carte
-                                if (status == 0)
-                                {
-                                    status = rf_anticoll(icdev, bcnt, pSnr, ref len);//On valide une carte dont l'identifiant est recupéré avec pSnr                                       
-                                    if (status == 0)
-                                    {
-                                        byte[] szBytes = new byte[len];
-                                        for (int j = 0; j < len; j++) szBytes[j] = Marshal.ReadByte(pSnr, j);
-                                        String m_cardNo = String.Empty;
-                                        for (int q = 0; q < len; q++) m_cardNo += byteHEX(szBytes[q]);
-                                        // carteLu.Identifiant = m_cardNo;
-                                        Identifiant = m_cardNo;
-                                        testlecture = 2;
-                                    }
-                                    else testlecture++;
-                                }
-                            }
-                        }
+                        byte[] szBytes = new byte[len];
+                        for (int j = 0; j < len; j++)
+                            szBytes[j] = Marshal.ReadByte(pSnr, j);
+
+                        string m_cardNo = string.Empty;
+                        for (int q = 0; q < len; q++)
+                            m_cardNo += byteHEX(szBytes[q]);
+
+                        Identifiant = m_cardNo;
                     }
-                } while (testlecture < 2 && status == 0);
+                }
 
                 Marshal.FreeHGlobal(pSnr);
             }
             return status;
         }
-        // GET RFID ou error message
-        public string GetCardID()
+
+        // === Lecture automatique en tâche de fond ===
+        private void StartAutoRead()
         {
-            int status = lireIdentifiantCarte();
-            string statusMsg = null;
+            if (lectureEnCours)
+                return;
 
-            switch (status)
+            lectureEnCours = true;
+            cts = new CancellationTokenSource();
+
+            Task.Run(async () =>
             {
-                case 0:
-                    statusMsg = Identifiant; // Retourne l'identifiant de la carte
-                    break;
+                string lastCard = null;
+                DateTime lastScanTime = DateTime.MinValue;
 
-                case 1:
-                    // Commenté pour éviter l'affichage d'erreurs
-                    // MessageBox.Show("Erreur de vitesse du Port Série", "Information", MessageBoxButton.OK, MessageBoxImage.Error);
-                    break;
+                while (!cts.Token.IsCancellationRequested)
+                {
+                    int status = lireIdentifiantCarte();
 
-                case 2:
-                    // Commenté pour éviter l'affichage d'erreurs
-                    // MessageBox.Show("Erreur de numéro du Port Série", "Information", MessageBoxButton.OK, MessageBoxImage.Error);
-                    break;
+                    if (status == 0 && !string.IsNullOrEmpty(Identifiant))
+                    {
+                        // ✅ Autorise le même badge après 500ms
+                        if (Identifiant != lastCard || (DateTime.Now - lastScanTime).TotalMilliseconds > 500)
+                        {
+                            lastCard = Identifiant;
+                            lastScanTime = DateTime.Now;
+                            CardScanned?.Invoke(this, Identifiant);
+                        }
+                    }
 
-                case 20:
-                    // Commenté pour éviter l'affichage d'erreurs
-                    // MessageBox.Show("Carte absente", "Information", MessageBoxButton.OK, MessageBoxImage.Error);
-                    break;
+                    await Task.Delay(200); // lit toutes les 200ms pour plus de réactivité
+                }
+
+                lectureEnCours = false;
+            }, cts.Token);
+        }
+
+        // === Conversion hexadécimale ===
+        public static string byteHEX(byte ib)
+        {
+            try
+            {
+                char[] Digit = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+                char[] ob = new char[2];
+                ob[0] = Digit[(ib >> 4) & 0X0F];
+                ob[1] = Digit[ib & 0X0F];
+                return new string(ob);
             }
-
-            return statusMsg;
+            catch
+            {
+                return string.Empty;
+            }
         }
     }
 }
